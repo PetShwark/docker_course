@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -12,19 +13,23 @@ func main() {
 
 	m.HandleFunc("/", handlePage)
 
-	const port = "8010"
-	srv := http.Server{
-		Handler:      m,
-		Addr:         ":" + port,
-		WriteTimeout: 30 * time.Second,
-		ReadTimeout:  30 * time.Second,
-	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT environment variable not set")
+	} else {
+		srv := http.Server{
+			Handler:      m,
+			Addr:         ":" + port,
+			WriteTimeout: 30 * time.Second,
+			ReadTimeout:  30 * time.Second,
+		}
 
-	// this blocks forever, until the server
-	// has an unrecoverable error
-	fmt.Println("server started on ", port)
-	err := srv.ListenAndServe()
-	log.Fatal(err)
+		// this blocks forever, until the server
+		// has an unrecoverable error
+		fmt.Println("server started on ", port)
+		err := srv.ListenAndServe()
+		log.Fatal(err)
+	}
 }
 
 func handlePage(w http.ResponseWriter, r *http.Request) {
